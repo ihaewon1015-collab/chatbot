@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>당당한 당케어 - 혈당 자가관리 & 인슐린 챗봇</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 섹션 -->
+        <header class="hero-header">
+            <div class="hero-badge">
+                <span>🌱 스마트 혈당 자가관리 솔루션</span>
+            </div>
+            <div class="mascot-wrapper">
+                <!-- JPG 이미지 요소 적용 -->
+                <img src="mascot.jpg" alt="당당한 당케어 마스코트" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+            </div>
+            <h1 class="hero-title">당당한 <span>당케어</span></h1>
+            <p class="hero-subtitle">공복 혈당 수치를 입력하고 맞춤형 인슐린 투여량과 행동요령을 확인하세요.</p>
+        </header>
+
+        <!-- 공복 혈당 기준 안내 카드 -->
+        <section class="card">
+            <h2 class="card-title">
+                <span class="dot"></span> 공복 혈당 기준 참고표
+            </h2>
+            <div class="range-grid">
+                <div class="range-item low">
+                    <div class="range-label">저혈당</div>
+                    <div class="range-value">&lt; 70 mg/dL</div>
+                    <div class="range-desc">즉시 당분 섭취</div>
+                </div>
+                <div class="range-item normal">
+                    <div class="range-label">정상</div>
+                    <div class="range-value">70 ~ 100</div>
+                    <div class="range-desc">안정적인 상태</div>
+                </div>
+                <div class="range-item borderline">
+                    <div class="range-label">경계성 당뇨</div>
+                    <div class="range-value">101 ~ 125</div>
+                    <div class="range-desc">식사 및 운동 조절</div>
+                </div>
+                <div class="range-item high">
+                    <div class="range-label">고혈당</div>
+                    <div class="range-value">&ge; 126</div>
+                    <div class="range-desc">지속적인 모니터링</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 혈당 입력 및 진단 진입 카드 -->
+        <section class="card">
+            <h2 class="card-title">
+                <span class="dot"></span> 공복 혈당 수치 진단하기
+            </h2>
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input type="number" id="bloodSugarInput" class="sugar-input" placeholder="예: 110" min="30" max="500">
+                    <span class="input-unit">mg/dL</span>
+                </div>
+                <button type="button" id="diagnoseBtn" class="btn-primary">결과 확인하기</button>
+            </div>
+            
+            <!-- 빠른 선택 버튼 -->
+            <div class="quick-presets">
+                <span class="preset-label">빠른 입력:</span>
+                <button type="button" class="preset-btn" onclick="setPreset(65)">65 (저혈당)</button>
+                <button type="button" class="preset-btn" onclick="setPreset(90)">90 (정상)</button>
+                <button type="button" class="preset-btn" onclick="setPreset(115)">115 (경계성)</button>
+                <button type="button" class="preset-btn" onclick="setPreset(140)">140 (고혈당)</button>
+            </div>
+
+            <!-- 진단 결과 출력 박스 -->
+            <div id="resultBox" class="result-box">
+                <div class="result-header">
+                    <span id="resultCategory" class="result-badge">진단 결과</span>
+                    <span id="resultValueText" style="font-weight: 700; font-size: 1.05rem;"></span>
+                </div>
+                
+                <!-- 시각적 게이지 바 -->
+                <div class="gauge-container">
+                    <div class="gauge-bar">
+                        <div id="gaugeMarker" class="gauge-marker"></div>
+                    </div>
+                </div>
+
+                <!-- 인슐린 안내 -->
+                <div class="insulin-guide">
+                    <div class="guide-subtitle">💉 인슐린 투여 안내</div>
+                    <p id="insulinText" style="font-size: 0.95rem; color: var(--text-main);">-</p>
+                </div>
+
+                <!-- 행동요령 안내 -->
+                <div class="action-guide">
+                    <div class="guide-subtitle">💡 추천 행동요령</div>
+                    <ul id="actionList" class="action-list">
+                        <!-- 동적 삽입 -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 식후 혈당 참고 정보 토글 카드 -->
+        <section class="card">
+            <div class="toggle-header" onclick="togglePostMealTable()">
+                <h2 class="card-title" style="margin-bottom: 0;">
+                    <span class="dot"></span> 식후 혈당 및 추가 인슐린 투여 기준 (참고용)
+                </h2>
+                <button type="button" class="toggle-btn" id="toggleBtnText">펼쳐보기 ▼</button>
+            </div>
+            <div id="postMealContent" style="display: none; margin-top: 16px;">
+                <p style="font-size: 0.9rem; color: var(--text-sub); margin-bottom: 12px;">
+                    ※ 매 식사 전 하루 총 3회 초속효성 인슐린 투여 기준입니다.
+                </p>
+                <table class="postmeal-table">
+                    <thead>
+                        <tr>
+                            <th>식후 혈당 범위</th>
+                            <th>상태</th>
+                            <th>인슐린 추가 투여량</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>70 미만</td>
+                            <td>저혈당</td>
+                            <td>인슐린 투여 즉시 중단, 당분 섭취</td>
+                        </tr>
+                        <tr>
+                            <td>70 ~ 139</td>
+                            <td>정상 범위</td>
+                            <td>추가 투여 불필요</td>
+                        </tr>
+                        <tr>
+                            <td>140 ~ 180</td>
+                            <td>약간 높은 편</td>
+                            <td>초속효성 인슐린 4유닛(Unit) 추가 투여</td>
+                        </tr>
+                        <tr>
+                            <td>181 ~ 220</td>
+                            <td>높은 편</td>
+                            <td>초속효성 인슐린 6유닛(Unit) 추가 투여</td>
+                        </tr>
+                        <tr>
+                            <td>221 이상</td>
+                            <td>매우 높은 고혈당</td>
+                            <td>초속효성 인슐린 8유닛(Unit) 추가 투여</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 예방행동 체크리스트 -->
+        <section class="card">
+            <h2 class="card-title">
+                <span class="dot"></span> 당뇨병 예방 및 일상 관리 체크리스트
+            </h2>
+            <ul class="checklist">
+                <li class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox">
+                    <span>매일 아침 공복 혈당 측정 및 기록하기</span>
+                </li>
+                <li class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox">
+                    <span>규칙적인 유산소 운동 (식후 30분 걷기)</span>
+                </li>
+                <li class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox">
+                    <span>저탄수화물·고단백 및 식이섬유 위주 식단 구성</span>
+                </li>
+                <li class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox">
+                    <span>충분한 수분 섭취 및 당류·가공식품 줄이기</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- 푸터 및 의학적 근거 -->
+        <footer class="footer-note">
+            <p><strong>[의학적 근거 자료]</strong> 서울대학교 의과대학 내과학교실 '입원환자의 인슐린 치료' 논문 및 분당서울대학교병원 건강상식 참고</p>
+            <p style="margin-top: 4px;">&copy; 2026 당당한 당케어. 본 웹페이지는 자가관리 참고용이며 정확한 처방은 주치의와 상담하세요.</p>
+        </footer>
+    </div>
+
+    <script>
+        function setPreset(val) {
+            document.getElementById('bloodSugarInput').value = val;
+            diagnoseBloodSugar();
+        }
+
+        function diagnoseBloodSugar() {
+            const inputVal = document.getElementById('bloodSugarInput').value.trim();
+            const resultBox = document.getElementById('resultBox');
+            const resultCategory = document.getElementById('resultCategory');
+            const resultValueText = document.getElementById('resultValueText');
+            const gaugeMarker = document.getElementById('gaugeMarker');
+            const insulinText = document.getElementById('insulinText');
+            const actionList = document.getElementById('actionList');
+
+            if (inputVal === '' || isNaN(inputVal)) {
+                alert('올바른 공복 혈당 수치(숫자)를 입력해주세요.');
+                return;
+            }
+
+            const sugar = parseInt(inputVal, 10);
+            resultBox.className = 'result-box active';
+            actionList.innerHTML = '';
+
+            let badgeClass = '';
+            let badgeText = '';
+            let insulinMsg = '';
+            let actions = [];
+            let markerPos = 0; // percentage 0 ~ 100
+
+            if (sugar < 70) {
+                badgeClass = 'low';
+                badgeText = '저혈당 위험';
+                insulinMsg = '인슐린을 투여하지 마시고 즉시 당분(사탕, 주스 등 15g)을 섭취하세요.';
+                actions = [
+                    '15-15 법칙 준수: 단순당 15g 섭취 후 15분간 휴식',
+                    '증상이 지속될 경우 반복 섭취 및 응급 상황 대비',
+                    '주치의와 저혈당 원인 상담 필요'
+                ];
+                markerPos = Math.max(5, (sugar / 70) * 20);
+            } else if (sugar <= 100) {
+                badgeClass = 'normal';
+                badgeText = '공복 혈당 정상';
+                insulinMsg = '현재 공복 혈당은 정상 범위입니다. 추가 인슐린 투여가 필요하지 않습니다.';
+                actions = [
+                    '현재의 건강한 식습관과 운동 루틴 유지하기',
+                    '규칙적인 수면 및 수분 섭취',
+                    '정기적인 혈당 모니터링 지속'
+                ];
+                markerPos = 25 + ((sugar - 70) / 30) * 25;
+            } else if (sugar <= 125) {
+                badgeClass = 'borderline';
+                badgeText = '경계성 당뇨 (주의)';
+                insulinMsg = '경계성 당뇨 단계입니다. 특별한 처방이 없다면 추가 인슐린 투여는 하지 않습니다.';
+                actions = [
+                    '탄수화물 섭취를 조절하고 당GI 식단 위주로 식사하기',
+                    '식후 30분 이상 꾸준한 유산소 운동 실천',
+                    '체중 관리 및 정기적인 당화혈색소 검사 권장'
+                ];
+                markerPos = 50 + ((sugar - 101) / 24) * 25;
+            } else {
+                badgeClass = 'high';
+                badgeText = '고혈당 주의';
+                insulinMsg = '고혈당 상태입니다. 지속적인 모니터링이 필요하며 의료진의 처방을 확인하세요.';
+                actions = [
+                    '처방된 당뇨 약물 및 인슐린 요법 점검',
+                    '수분 충분히 섭취 및 가벼운 걷기 운동으로 혈당 강하 유도',
+                    '수치가 지속적으로 높을 경우 내과 전문의 상담'
+                ];
+                markerPos = Math.min(95, 75 + ((sugar - 126) / 100) * 25);
+            }
+
+            resultBox.className = `result-box active ${badgeClass}`;
+            resultCategory.textContent = badgeText;
+            resultValueText.textContent = `입력 수치: ${sugar} mg/dL`;
+            gaugeMarker.style.left = `${markerPos}%`;
+            insulinText.textContent = insulinMsg;
+
+            actions.forEach(action => {
+                const li = document.createElement('li');
+                li.textContent = action;
+                actionList.appendChild(li);
+            });
+        }
+
+        document.getElementById('diagnoseBtn').addEventListener('click', diagnoseBloodSugar);
+        document.getElementById('bloodSugarInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                diagnoseBloodSugar();
+            }
+        });
+
+        function togglePostMealTable() {
+            const content = document.getElementById('postMealContent');
+            const btn = document.getElementById('toggleBtnText');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                btn.textContent = '접기 ▲';
+            } else {
+                content.style.display = 'none';
+                btn.textContent = '펼쳐보기 ▼';
+            }
+        }
+
+        function toggleCheck(item) {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                item.classList.add('checked');
+            } else {
+                item.classList.remove('checked');
+            }
+        }
+    </script>
+</body>
+</html>
